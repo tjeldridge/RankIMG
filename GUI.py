@@ -4,29 +4,29 @@ from tkinter import font
 
 
 class GUI:
-    def __init__(self, image_one: str, image_two: str):
+    def __init__(self, image_one: str, image_two: str, title: str = "Select Best Image"):
         self.root = tk.Tk()
-        self.image1 = ImageTk.PhotoImage(Image.open(image_one))
-        self.image2 = ImageTk.PhotoImage(Image.open(image_two))
-        self.image1_score = 0.5
-        self.image2_score = 0.5
+        self.image1 = Image.open(image_one)
+        self.image2 = Image.open(image_two)
+        self.title = title
+        self.button_pressed = None
 
     def __enter__(self):
         self.generate_window()
-        return self.image1_score, self.image2_score
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             print(exc_type, exc_val, exc_tb)
 
     def generate_window(self):
-        self.root.title('Select Best Image')
+        self.root.title(self.title)
 
         # get the image sizes
-        w1 = self.image1.width()
-        h1 = self.image1.height()
-        w2 = self.image2.width()
-        h2 = self.image2.height()
+        self.image1 = check_and_resize(self.image1)
+        self.image2 = check_and_resize(self.image2)
+        w1, h1 = self.image1.size
+        w2, h2 = self.image2.size
         h = max([h1, h2]) + 100
 
         # position coordinates of root 'upper left corner'
@@ -36,42 +36,48 @@ class GUI:
         # make the root window the size of the image
         self.root.geometry("%dx%d+%d+%d" % (w1 + w2, h, x, y))
 
+        # Generate Frames
         topframe = tk.Frame(self.root)
         topframe.pack(side=tk.TOP)
         bottomframe = tk.Frame(self.root)
         bottomframe.pack(side=tk.BOTTOM)
 
-        # root has no image argument, so use a label as a panel
-        panel1 = tk.Button(topframe, image=self.image1, command=lambda: self.select(1))
-        panel2 = tk.Button(topframe, image=self.image2, command=lambda: self.select(2))
-        button3 = tk.Button(bottomframe, text="Tie", width=w1+w2, height=50, command=lambda: self.select(3))
+        # button images
+        button1img = ImageTk.PhotoImage(self.image1)
+        button2img = ImageTk.PhotoImage(self.image2)
+        # buttons
+        button1 = tk.Button(topframe, image=button1img, command=lambda: self.select("One"))
+        button2 = tk.Button(topframe, image=button2img, command=lambda: self.select("Two"))
+        button3 = tk.Button(bottomframe, text="Tie", width=w1+w2, height=50, command=lambda: self.select("Three"))
+        # button 3 font
         buttonfont = font.Font(size=50, weight="bold")
         button3['font'] = buttonfont
-        # self.display = self.image1
-        panel1.pack(side=tk.LEFT, anchor="nw", fill=tk.NONE, expand=tk.NO)
-        panel2.pack(side=tk.RIGHT, anchor="ne", fill=tk.NONE, expand=tk.NO)
+        # pack buttons
+        button1.pack(side=tk.LEFT, anchor="nw", fill=tk.NONE, expand=tk.NO)
+        button2.pack(side=tk.RIGHT, anchor="ne", fill=tk.NONE, expand=tk.NO)
         button3.pack(side=tk.LEFT, fill=tk.X, expand=tk.YES)
+        # generate window
         self.root.mainloop()
 
     def select(self, x):
-        if x == 1:
-            self.image1_score = 1
-            self.image2_score = 0
-        elif x == 2:
-            self.image1_score = 0
-            self.image2_score = 1
-        else:
-            self.image1_score = 0.5
-            self.image2_score = 0.5
+        self.button_pressed = x
         self.root.destroy()
 
+def check_dimension(val: int, maxval: int = 800):
+    if val > maxval:
+        return maxval
+    else:
+        return val
 
-def main():
-    imageFile = "01584-3235428827-masterpiece, best quality, art by granblue fantasy, (masterpiece_1.2)," \
-                " (intricate_details_1.2), colorful, beautiful hair, detail.png"
-    with GUI(imageFile, imageFile) as app:
-        print(app)
+def check_and_resize(image: Image.open):
+    init_w, init_h = image.size
+    ratio = init_w / init_h
+    temp_w = check_dimension(init_w, maxval=600)
+    temp_h = int(temp_w // ratio)
+    h = check_dimension(temp_h, maxval=800)
+    w = int(ratio * h)
+    if any([init_w != w, init_h != h]):
+        image = image.resize((w, h), Image.ANTIALIAS)
+    return image
 
-
-if __name__ == '__main__':
-    main()
+# End
