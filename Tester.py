@@ -2,9 +2,10 @@ from Compete import Compete
 
 
 def main():
-    competition = Compete(directory=None, json_file="testdata2.json")
+    competition = Compete(character="Chy")
     competition.random_bracket()
-    competition.top(5)
+    competition.top(100)
+
 
 if __name__ == '__main__':
     main()

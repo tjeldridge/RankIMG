@@ -2,12 +2,14 @@ from OpenDir import OpenDir, checkslash
 from GUI import GUI
 from time import time
 from random import shuffle
-from JSON import jsondata
+from JSON import jsondata, autonamejson
 
 
 class Compete:
-    def __init__(self, directory: str, json_file: str = "data.json", **tags):
+    def __init__(self, directory: str = None, json_file: str = None, character: str = None, **tags):
         self.directory = OpenDir(directory)
+        if json_file is None:
+            json_file = autonamejson(self.directory.directory, character=character)
         self.json = jsondata(json_file)
         self.tags = dict(**tags)
         # Organize Competitors
@@ -149,9 +151,21 @@ class Compete:
 
     def top(self, x):
         ranks = self.sort_by_avg()
+        if x > len(ranks):
+            x = len(ranks)
         for i in range(x):
             filename = ranks[i][0]
             score = ranks[i][1]
-            print("#%d: %s \t Score: %.3f" % (i + 1, filename, score))
+            fcr = findcopyright(filename)
+            print("#%d:\t%s\tScore:\t%.3f" % (i + 1, fcr, score))
 
+
+def findcopyright(string: str):
+    strls = string.split(",")
+    cr = string
+    for i in strls:
+        if "art by" in i:
+            cr = i[8:]
+            break
+    return cr
 # End

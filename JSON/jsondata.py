@@ -1,11 +1,12 @@
 import json
-from os.path import isfile
+from os.path import isfile, isdir
+from os import mkdir
 
 
 class jsondata:
     def __init__(self, json_file: str = "data.json"):
         self.json_file = "JSON/" + json_file
-        self.json_log_file = "JSON/" + json_file.rstrip(".json") + "_log.json"
+        self.json_log_file = "JSON/" + json_file[:-5] + "_log.json"
         self.competitors = {}
         self.competition_log = {}
         self.load_data()
@@ -51,5 +52,18 @@ def create_json(filename: str, data: dict, overwrite: bool = False, sort: bool =
             json.dump(data, outfile, sort_keys=sort, indent=4)
     else:
         raise FileExistsError("The file '%s' already exists and cannot be overwritten." % filename)
+
+
+def autonamejson(directory: str, character: str = None) -> str:
+    if character is not None:
+        chardir = "JSON/" + character
+        if not isdir(chardir):
+            mkdir(chardir)
+        character += "/"
+    else:
+        character = ""
+    dirname = directory.split("/")[-1]
+    jsonname = character + dirname + ".json"
+    return jsonname
 
 # End

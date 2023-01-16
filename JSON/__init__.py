@@ -1,6 +1,6 @@
-from JSON.jsondata import jsondata
+from JSON.jsondata import jsondata, autonamejson
 
 
-__all__ = ["jsondata"]
+__all__ = ["jsondata", "autonamejson"]
 
 # End

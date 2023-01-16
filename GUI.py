@@ -63,11 +63,13 @@ class GUI:
         self.button_pressed = x
         self.root.destroy()
 
+
 def check_dimension(val: int, maxval: int = 800):
     if val > maxval:
         return maxval
     else:
         return val
+
 
 def check_and_resize(image: Image.open):
     init_w, init_h = image.size
